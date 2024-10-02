@@ -1,7 +1,7 @@
 import copy
 
 
-def create_flow(service_specs, deployment_specs, flow_uuid):
+def create_flow(service_specs: list, deployment_specs: list, flow_uuid):
 
     modified_deployment_specs = []
 
