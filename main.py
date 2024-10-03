@@ -1,20 +1,34 @@
 import copy
 
 
-def create_flow(service_specs: list, deployment_specs: list, flow_uuid):
+def create_flow(service_specs: list, pod_specs: list, flow_uuid, api_key):
+    modified_pod_specs = []
 
-    modified_deployment_specs = []
+    for pod_spec in pod_specs:
+        modified_pod_spec = copy.deepcopy(pod_spec)
+        containers = modified_pod_spec.get('containers', [])
 
-    for deployment_spec in deployment_specs:
-        modified_deployment_spec = copy.deepcopy(deployment_spec)
-        modified_deployment_spec['template']['spec']['containers'][0]["image"] = "kurtosistech/redis-proxy-overlay:latest"
+        # Check if there are containers
+        if containers:
+            container = containers[0]
+            # Add environment variables
+            env_vars = container.get('env', [])
 
-        modified_deployment_specs.append(modified_deployment_spec)
+            for env in env_vars:
+                if env.get("name") == "JSDELIVRAPIKEY":
+                    env["value"] = api_key
+
+            container['env'] = env_vars
+
+            modified_pod_spec['containers'][0] = container
+
+        modified_pod_specs.append(modified_pod_spec)
 
     return {
-        "deployment_specs": modified_deployment_specs,
+        "pod_specs": modified_pod_specs,
         "config_map": {}
     }
 
+
 def delete_flow(config_map, flow_uuid):
-    pass
+    return
